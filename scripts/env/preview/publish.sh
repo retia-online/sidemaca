@@ -129,6 +129,10 @@ fi
 printf 'Enviando cambios a origin/preview como %s...\n' "$GIT_NAME"
 git push -u origin preview
 
+if [ -x "$PROJECT_ROOT/scripts/env/sync-vercel-env.sh" ]; then
+    "$PROJECT_ROOT/scripts/env/sync-vercel-env.sh" preview || true
+fi
+
 if [ "$ORIGIN_BRANCH" != "preview" ] && [ -n "$ORIGIN_BRANCH" ]; then
     git checkout "$ORIGIN_BRANCH"
     if [ -n "$PREV_GIT_NAME" ]; then git config user.name "$PREV_GIT_NAME"; fi
