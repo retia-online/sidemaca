@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --o-color-1: #003485;
+  --o-color-2: #494048;
+  --o-color-3: #f9f9f9;
+  --o-color-4: #ffffff;
+  --o-color-5: #201c20;
+  --body-bg: #ffffff;
+  --body-color: #212529;
+  --font-sans: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-headings: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--body-color);
+  background-color: var(--body-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6,
+.font-headings {
+  font-family: var(--font-headings);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Bootstrap / Odoo fluid container widths */
+.sidema-container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 576px) {
+  .sidema-container { max-width: 540px; }
+}
+@media (min-width: 768px) {
+  .sidema-container { max-width: 720px; }
+}
+@media (min-width: 992px) {
+  .sidema-container { max-width: 960px; }
+}
+@media (min-width: 1200px) {
+  .sidema-container { max-width: 1140px; }
+}
+@media (min-width: 1400px) {
+  .sidema-container { max-width: 1320px; }
+}
+
+/* Subtle Odoo entrance animations */
+@keyframes sidemaBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale3d(0.82, 0.82, 0.82);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.985, 0.985, 0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.anim-bounce-in {
+  animation: sidemaBounceIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .anim-bounce-in {
+    animation: none !important;
+  }
+}

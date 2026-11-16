@@ -1,0 +1,6 @@
+{
+  "name": "SIDEMACA",
+  "description": "Sidema C.A. — Soluciones en transporte de materiales por bandas transportadoras y transmisión de fuerza por correas planas en Venezuela.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
