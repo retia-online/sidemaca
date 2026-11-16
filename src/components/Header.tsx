@@ -124,19 +124,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
                     </li>
                   );
                 })}
-                <li className="nav-item lg:ml-3">
-                  <a
-                    href="/web/login"
-                    onClick={(e) => handleLinkClick(e, '/web/login')}
-                    className={`block whitespace-nowrap px-2 py-2 text-[1rem] font-normal transition-colors ${
-                      currentPath === '/web/login'
-                        ? 'text-black/90 font-medium'
-                        : 'text-black/55 hover:text-black/75'
-                    }`}
-                  >
-                    Identificarse
-                  </a>
-                </li>
               </ul>
 
               {/* Mobile phone */}
