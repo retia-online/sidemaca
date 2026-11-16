@@ -140,6 +140,10 @@ git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
 echo -e "\n${BLUE}📤 Enviando $TARGET_BRANCH y tag $RELEASE_TAG a GitHub como $GIT_NAME...${NC}"
 git push origin "$TARGET_BRANCH" "$RELEASE_TAG"
 
+if [ -x "$PROJECT_ROOT/scripts/env/sync-vercel-env.sh" ]; then
+    "$PROJECT_ROOT/scripts/env/sync-vercel-env.sh" production || true
+fi
+
 echo -e "\n${BLUE}🔄 Regresando automáticamente a la rama $SOURCE_BRANCH...${NC}"
 git checkout "$SOURCE_BRANCH"
 git merge "$TARGET_BRANCH" --ff-only || true
