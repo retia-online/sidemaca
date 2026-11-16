@@ -30,8 +30,8 @@ Opciones:
 
 ## 3. Variables de Entorno en Vercel
 Configurar en **Vercel → Project Settings → Environment Variables** (`Production` y `Preview`):
-- `SMTP_HOST`
-- `SMTP_PORT` (`587` o `465`)
-- `SMTP_USER`
-- `SMTP_PASSWORD`
+- `RESEND_API_KEY` (API Key de la cuenta Resend de Retia)
+- `RESEND_FROM` (remitente verificado en Resend, ej. `Portal Sidema C.A. <notificaciones@retia.online>`)
 - `CONTACT_TO_EMAIL=ventas@sidemaca.com`
+
+*(Opcional solo si no se usa Resend: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`)*

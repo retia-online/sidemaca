@@ -71,21 +71,67 @@ export default async function handler(req: any, res: any) {
     });
   }
 
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendFrom = process.env.RESEND_FROM || 'Portal Sidema C.A. <onboarding@resend.dev>';
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
   const toEmail = process.env.CONTACT_TO_EMAIL || 'ventas@sidemaca.com';
 
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.error('[Sidema Contact] Missing SMTP configuration in environment variables.');
+  if (!resendApiKey && (!smtpHost || !smtpUser || !smtpPass)) {
+    console.error('[Sidema Contact] Missing RESEND_API_KEY or SMTP configuration in environment variables.');
     return res.status(500).json({
       success: false,
       error: 'El servicio de correo no está configurado en el servidor.',
     });
   }
 
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #212529; max-width: 640px; margin: 0 auto;">
+      <h2 style="color: #003485; border-bottom: 2px solid #003485; padding-bottom: 8px;">
+        Nuevo contacto desde sidemaca.com
+      </h2>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
+        <tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Nombre:</td><td>${escapeHtml(name)}</td></tr>
+        <tr><td style="padding: 6px 0; font-weight: bold;">Correo:</td><td>${escapeHtml(email)}</td></tr>
+        <tr><td style="padding: 6px 0; font-weight: bold;">Teléfono:</td><td>${escapeHtml(phone || 'No indicado')}</td></tr>
+        <tr><td style="padding: 6px 0; font-weight: bold;">Empresa:</td><td>${escapeHtml(company || 'No indicada')}</td></tr>
+        <tr><td style="padding: 6px 0; font-weight: bold;">Asunto:</td><td>${escapeHtml(subject)}</td></tr>
+      </table>
+      <div style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-left: 4px solid #003485;">
+        <strong>Mensaje / Pregunta:</strong>
+        <p style="white-space: pre-wrap; margin-top: 8px;">${escapeHtml(description)}</p>
+      </div>
+    </div>
+  `;
+
   try {
+    if (resendApiKey) {
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: resendFrom,
+          to: [toEmail],
+          reply_to: email,
+          subject: `[Contacto Web] ${subject}`,
+          html,
+        }),
+      });
+
+      if (!resendRes.ok) {
+        const errData = await resendRes.json().catch(() => ({}));
+        console.error('[Sidema Contact] Resend API error:', resendRes.status, errData);
+        throw new Error(errData?.message || 'Error al enviar correo con Resend.');
+      }
+
+      return res.status(200).json({ success: true, provider: 'resend' });
+    }
+
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
@@ -96,25 +142,6 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    const html = `
-      <div style="font-family: Arial, sans-serif; color: #212529; max-width: 640px; margin: 0 auto;">
-        <h2 style="color: #003485; border-bottom: 2px solid #003485; padding-bottom: 8px;">
-          Nuevo contacto desde sidemaca.com
-        </h2>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
-          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Nombre:</td><td>${escapeHtml(name)}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: bold;">Correo:</td><td>${escapeHtml(email)}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: bold;">Teléfono:</td><td>${escapeHtml(phone || 'No indicado')}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: bold;">Empresa:</td><td>${escapeHtml(company || 'No indicada')}</td></tr>
-          <tr><td style="padding: 6px 0; font-weight: bold;">Asunto:</td><td>${escapeHtml(subject)}</td></tr>
-        </table>
-        <div style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-left: 4px solid #003485;">
-          <strong>Mensaje / Pregunta:</strong>
-          <p style="white-space: pre-wrap; margin-top: 8px;">${escapeHtml(description)}</p>
-        </div>
-      </div>
-    `;
-
     await transporter.sendMail({
       from: `"Portal Sidema C.A." <${smtpUser}>`,
       to: toEmail,
@@ -123,7 +150,7 @@ export default async function handler(req: any, res: any) {
       html,
     });
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, provider: 'smtp' });
   } catch (error: any) {
     console.error('[Sidema Contact] Error sending email:', error);
     return res.status(500).json({
